@@ -7,12 +7,6 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("biomaRt")
-#biocLite("rhdf5")
-#biocLite("UniProt.ws")
-#devtools::install_github("cmap/cmapR")
-
 list.of.packages <- c('kableExtra', 'knitr', 'ggplot2','gridExtra','reshape2','grid')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -36,7 +30,7 @@ For the first dataset, we created 1000 observations sampled from:
 
 ```{r}
 set.seed(0)
-x = generate.mog(n.data=1000, mu=c(0,10,-20), sigma=c(1,8,3), priors=c(.5,.3,.2))
+x = generate.mog(n.data=1000, mu=c(0,10,-20), sigma=c(1,8,3), prior=c(.5,.3,.2))
 hist(x, breaks=100)
 
 ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params')

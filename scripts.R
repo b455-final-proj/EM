@@ -56,15 +56,17 @@ expectation = function(data, mu, sigma, prior){
 	P.Xj.and.Ci = matrix(rep(NA, length=n.classes*n.data), ncol=n.classes)
 	if(n.vars==1){
 	  for(i in 1:n.classes){
-	    P.Xj.and.Ci[,i] = prior[i] * dnorm(data, mean=as.vector(mu)[i],
-	                                       sd=as.vector(sigma)[i])
+	    #P(Xj.and.Ci) = P(Ci) * P(Xj | Ci)
+	    P.Xj.and.Ci[,i] = prior[i] * dnorm(data, mean=mu[i,],
+	                                       sd=sigma[i])
 	  }
 	} else {
   	for(i in 1:n.classes){
+  	  #P(Xj.and.Ci) = P(Ci) * P(Xj | Ci)
 	    P.Xj.and.Ci[,i] = prior[i] * dmvnorm(data, mean=mu[i,], sigma=sigma[,,i])
 	  }
-	  P.Ci.given.Xj = P.Xj.and.Ci / apply(P.Xj.and.Ci, 1, sum)
-	
+	}
+	P.Ci.given.Xj = P.Xj.and.Ci / apply(P.Xj.and.Ci, 1, sum)
 	most.likely.class = apply(P.Xj.and.Ci, 1, which.max)
 	log.like = sum(log(diag(P.Ci.given.Xj[1:n.data, most.likely.class])))
 	out = list(P.Ci.given.Xj, log.like)
@@ -76,28 +78,25 @@ maximization = function(P.Ci.given.Xj, data, prior){
   n.classes = length(prior)
   n.vars = ncol(data)
   n.data = nrow(data)
-	N = matrix(apply(P.Ci.given.Xj, 1, sum), ncol=1)
+	N = apply(P.Ci.given.Xj, 2, sum)
 	mu = matrix(rep(NA, length=n.classes*n.vars, 0, 1), nrow=n.classes)
 	sigma = replicate(n.classes, matrix(rep(NA, n.vars^2), nrow=n.vars))
-	if(n.vars==1){
-	  for(i in 1:n.classes){
-	    mu[i,] = colMeans(data * P.Ci.given.Xj[,i] / N[i])
-	    diff = data - mu[rep(i, nrow(data)),]
-	    sigma[i] = t(diff) %*% diff / n.data
-	  }
-	} else {
-	  for(i in 1:n.classes){
-	    mu[i,] = colMeans(data * P.Ci.given.Xj[,i] / N[i])
-	    diff = data - mu[rep(i, nrow(data)),]
-	    sigma[,,i] = t(diff) %*% diff / n.data
+	for(i in 1:n.classes){
+	  mu[i,] = sum(data * P.Ci.given.Xj[,i]) / N[i]
+	  diff = data - mu[rep(i, nrow(data)),]
+	  if(n.vars==1){
+	    sigma[i] = sqrt(t(diff) %*% (diff * P.Ci.given.Xj[,i]) / N[i])
+	  } else {
+	    sigma[,,i] = sqrt(t(diff) %*% (diff * P.Ci.given.Xj[,i]) / N[i])
 	  }
 	}
+	prior = N/sum(N)
 	out = list(mu, sigma, prior)
 	names(out) = c('mu','sigma','prior')
 	return(out)
 }
 
-EM = function(data, n.classes, prior.choice, tol=.001, max.iters=1000, ...){
+EM = function(data, n.classes, prior.choice, tol=1e-3, max.iters=500, ...){
   init = EM.setup(data, n.classes, prior.choice, ...)
   mu = init$mu
   sigma = init$sigma
@@ -118,6 +117,11 @@ EM = function(data, n.classes, prior.choice, tol=.001, max.iters=1000, ...){
     mu = max$mu
     sigma = max$sigma
     prior = max$prior
+    
+    ##For debugging
+    #print(mu)
+    #print(sigma)
+    #print(prior)
     
     if(abs(log.like[i]) < tol){ break }
   }
