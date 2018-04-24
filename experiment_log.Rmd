@@ -36,8 +36,9 @@ For the first dataset, we created 1000 observations sampled from:
 
 ```{r}
 set.seed(0)
-x = generate_mog(n_data=1000, means=c(0,10,-20), sds=c(1,8,3), priors=c(.5,.3,.2))
+x = generate_mog(n.data=1000, means=c(0,10,-20), sigmas=c(1,8,3), priors=c(.5,.3,.2))
 hist(x, breaks=100)
 
+ans1 = EM(x, 3, 'equal_priors_random_params')
 #
 ```
