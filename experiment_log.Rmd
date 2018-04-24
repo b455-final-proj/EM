@@ -26,3 +26,18 @@ opts_chunk$set(echo=FALSE, cache=TRUE, autodep=TRUE,
 source('scripts.R')
 ```
 
+# Synthetic dataset #1: Univariate case
+
+For the first dataset, we created 1000 observations sampled from:
+
+* Normal(0, 1) with 50% chance
+* Normal(10, 8) with 30% chance
+* Normal(-20, 3) with 20% chance
+
+```{r}
+set.seed(0)
+x = generate_mog(n_data=1000, means=c(0,10,-20), sds=c(1,8,3), priors=c(.5,.3,.2))
+hist(x, breaks=100)
+
+#
+```
