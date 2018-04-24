@@ -118,10 +118,11 @@ EM = function(data, n.classes, prior.choice, tol=1e-3, max.iters=500, ...){
     sigma = max$sigma
     prior = max$prior
     
-    ##For debugging
-    #print(mu)
-    #print(sigma)
-    #print(prior)
+    #For debugging
+    print(c('iter: ', as.character(i)))
+    print(mu)
+    print(sigma)
+    print(prior)
     
     if(abs(log.like[i]) < tol){ break }
   }
