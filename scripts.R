@@ -17,6 +17,9 @@ rm(list.of.packages, new.packages)
 generate_mog <- function(n_data,means,sds,priors=NULL) {
   n_classes = length(means)
   if(is.null(priors)){ priors = rep(1/n_classes, n_classes) }
+  if((length(means) != length(sds)) | (length(sds) != length(priors))){
+    stop('Each class must have a mean, sd, and prior.')
+  }
   classes = sample(1:n_classes, size=n_data, replace=TRUE, prob=priors)
   data = rnorm(n_data, mean = means[classes], sd = sds[classes])
   return (data)
@@ -28,8 +31,10 @@ EM_setup = function(n_classes, prior_choice='equal_priors_unif_params', data){
 		prior = matrix(rep(1/n_classes, n_classes), nrow=n_classes) #All classes are equally as likely.
 		mu = matrix(runif(n_classes*n_vars, 0, 1), nrow=n_classes) #All means are initially ~Unif[0,1].
 		sigma = replicate(n_classes, matrix(runif(n_vars^2, 0, 1), nrow=n_vars))
+	} else if(prior_choice=='means'){
+	  #do something.
 	} else {
-		stop('invalid prior choice.')
+		stop('Invalid prior choice.')
 	}
 	return(list(prior, mu, sigma))
 }

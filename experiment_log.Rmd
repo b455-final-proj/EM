@@ -1,0 +1,57 @@
+---
+title: "Exploring different prior choices for the expectation-maximization algorithm."
+author: "Damon Pham, Kushal Shah, Ethan Violette"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Introduction: Problem and Motivation
+
+The Mixture of Gaussians (MOG) is a useful model in many industry and research settings. It can be used for spam detection by categorizing heterogenous documents to make the feature space easier to understand. It can be also used to classify emotions in speech audio, thus paving the way for more responsive human-computer interactions. 
+
+THe MOG model is often solved with an algorithm called "Expectation-Maximization" (EM). EM is a numerical procedure which begins with a set of possible distributions, and adjusts their parameters iteratively to yield their maximum a posteriori estimates. We implemented this algoritm in class using equally-likely Normal priors, with mu and sigma initialized randomly from ~Normal(0, 1). In this project, we investigate if superior prior choices exist. We came up with a few ideas, tested them on multivariate synthetic and real-world datasets, and compared the convergences and model accuracies. Our results are relevant to anyone interested in solving MOGs more efficeintly and accurately. 
+
+# Methods
+
+### Priors
+
+### Data
+
+*Synthetic*:
+
+*Real-world*:
+
+
+-Sufficient introduction of the problem-5%-Sufficient explanation of the importance of this problem(e.g. motivation)-5%-A detailed description of the proposed approach is clearly given.-7.5%-The experiments (data, training/testing environment, etc.) and evaluation procedures/metrics are clearly presented-5%-Results/demosare shownwith explanations-7.5%-A discussion of any challenges that were encountered, differences between the final approach and the proposed approach, and potential future work-5%-List of key referencesand any used open source libraries/packages that were used-5%
+
+```{r setup, include=FALSE}
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("biomaRt")
+#biocLite("rhdf5")
+#biocLite("UniProt.ws")
+#devtools::install_github("cmap/cmapR")
+
+list.of.packages <- c('kableExtra', 'knitr', 'ggplot2','gridExtra','reshape2','grid')
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages, require, character.only = TRUE)
+rm(list.of.packages, new.packages)
+
+opts_chunk$set(echo=FALSE, cache=TRUE, autodep=TRUE,
+               message=FALSE, warning=FALSE,
+               fig.align="center")
+
+source('scripts.R')
+```
+
+# Results
+
+# Convergence speed
+
+```{r}
+
+```
+
+# Model accuracy
+
