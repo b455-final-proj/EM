@@ -12,9 +12,15 @@ generate.mog <- function(n.data, mu, sigma, prior) {
     data = rnorm(n=n.data, mean=mu[classes], sd=sigma[classes])
   } else { 
     n.classes = nrow(mu) 
+    n.vars = ncol(mu)
     set.seed(0)
     classes = sample(1:n.classes, size=n.data, replace=TRUE, prob=prior)
-    data = mvrnorm(n=n.data, mu=mu[classes,], Sigma=sigma[,,classes])
+    classes = c(0, table(classes))
+    data = matrix(NA, nrow=n.data, ncol=n.vars)
+    for(i in 1:n.classes){
+      data[(sum(classes[1:i])+1):(sum(classes[1:i])+classes[i+1]),] = mvrnorm(
+        n=classes[i+1], mu = mu[i,], Sigma=sigma[,,i])
+    }
   }
   return(data)
 }
