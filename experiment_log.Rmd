@@ -20,10 +20,29 @@ opts_chunk$set(echo=FALSE, cache=TRUE, autodep=TRUE,
 source('scripts.R')
 ```
 
+Our own implementation converges correctly when the initial prior distributions are within range of the true prior distributions. Below are plots showing the data distribution (x) and a sample from the solved MOG (y). Clearly, the distributions are near-identical.
+
 ```{r}
 set.seed(0)
 x = generate.mog(n.data=1000, mu=c(0,.8, .3), sigma=c(.01,.01,.02), prior=c(.6,.2,.2))
 hist(x, breaks=100)
 
 ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iter=1000)
+
+y = generate.mog(n.data=1000, mu=as.numeric(ans1$mu), sigma=ans1$sigma, prior=ans1$prior)
+hist(y, breaks=100)
 ```
+
+However, when the true prior distributions are on a different magnitude, the algorithm fails to converge.
+
+```{r}
+set.seed(0)
+x = generate.mog(n.data=1000, mu=c(0,8, 3), sigma=c(.01,.01,.02), prior=c(.6,.2,.2))
+hist(x, breaks=100)
+
+ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iter=1000)
+
+y = generate.mog(n.data=1000, mu=as.numeric(ans1$mu), sigma=ans1$sigma, prior=ans1$prior)
+hist(y, breaks=100)
+```
+

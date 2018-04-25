@@ -1,7 +1,5 @@
 ### Exploring different prior choices for the expectation-maximization algorithm
 
-See `writeup.Rmd` for a project summary and results.
+Only the univariate case has been implemented.
 
-# How to use this code
-
-
+See `writeup.Rmd` for a summary of our efforts.
