@@ -4,16 +4,6 @@ if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only = TRUE)
 rm(list.of.packages, new.packages)
 
-# Generates MOG data given # of observations, means and standard deviatins of each Normal Distribution
-
-# n.data: integer number of data points to generate
-# means: vector of means for each class
-# sigma: covariance matrix between the classes
-# priors: vector of prior probabilities for each class
-
-# e.g.: MOG for 100 observations from N(0,1) and 500 observations from N(10,2) with equal priors would be:
-# generate.mog(c(100,500),c(0,10),c(1,2))
-
 generate.mog <- function(n.data, mu, sigma, prior) {
   if(is.vector(mu)){ 
     n.classes = length(mu)
@@ -67,27 +57,25 @@ expectation = function(data, mu, sigma, prior){
 	  }
 	}
 	P.Ci.given.Xj = P.Xj.and.Ci / apply(P.Xj.and.Ci, 1, sum)
-	most.likely.class = apply(P.Xj.and.Ci, 1, which.max)
-	log.like = sum(log(diag(P.Ci.given.Xj[1:n.data, most.likely.class])))
-	out = list(P.Ci.given.Xj, log.like)
-	names(out) = c('P.Ci.given.Xj', 'log.like')
+	N = apply(P.Ci.given.Xj, 2, sum)
+	log.like = -sum(log(apply(P.Xj.and.Ci, 1, sum)))
+	out = list(P.Ci.given.Xj, N, log.like)
+	names(out) = c('P.Ci.given.Xj', 'N', 'log.like')
 	return(out)
 }
 
-maximization = function(P.Ci.given.Xj, data, prior){
+maximization = function(P.Ci.given.Xj, N, data, prior){
   n.classes = length(prior)
   n.vars = ncol(data)
   n.data = nrow(data)
-	N = apply(P.Ci.given.Xj, 2, sum)
 	mu = matrix(rep(NA, length=n.classes*n.vars, 0, 1), nrow=n.classes)
 	sigma = replicate(n.classes, matrix(rep(NA, n.vars^2), nrow=n.vars))
 	for(i in 1:n.classes){
-	  mu[i,] = sum(data * P.Ci.given.Xj[,i]) / N[i]
-	  diff = data - mu[rep(i, nrow(data)),]
+	  mu[i,] = t(data) %*% P.Ci.given.Xj[,i] / N[i]
 	  if(n.vars==1){
-	    sigma[i] = sqrt(t(diff) %*% (diff * P.Ci.given.Xj[,i]) / N[i])
+	    sigma[i] = sqrt(t(data^2) %*% P.Ci.given.Xj[,i] / N[i] - mu[i,]^2)
 	  } else {
-	    sigma[,,i] = sqrt(t(diff) %*% (diff * P.Ci.given.Xj[,i]) / N[i])
+	    sigma[,,i] = sqrt(t(data^2) %*% P.Ci.given.Xj[,i] / N[i] - mu[i,]^2)
 	  }
 	}
 	prior = N/sum(N)
@@ -112,19 +100,14 @@ EM = function(data, n.classes, prior.choice, tol=1e-3, max.iters=500, ...){
     exp = expectation(data, mu, sigma, prior)
     P.Ci.given.Xj = exp$P.Ci.given.Xj
     log.like[i] = exp$log.like
+    N = exp$N
     
-    max = maximization(P.Ci.given.Xj, data, prior)
+    max = maximization(P.Ci.given.Xj, N, data, prior)
     mu = max$mu
     sigma = max$sigma
     prior = max$prior
     
-    #For debugging
-    print(c('iter: ', as.character(i)))
-    print(mu)
-    print(sigma)
-    print(prior)
-    
-    if(abs(log.like[i]) < tol){ break }
+    if(i!=1){ if(log.like[i - 1] - log.like[i] < tol){ break } }
   }
   log.like = log.like[1:i]
   out = list(mu, sigma, prior, log.like)
