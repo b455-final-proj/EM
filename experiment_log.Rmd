@@ -27,7 +27,7 @@ set.seed(0)
 x = generate.mog(n.data=1000, mu=c(0,.8, .3), sigma=c(.01,.01,.02), prior=c(.6,.2,.2))
 hist(x, breaks=100)
 
-ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iter=1000)
+ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
 
 y = generate.mog(n.data=1000, mu=as.numeric(ans1$mu), sigma=ans1$sigma, prior=ans1$prior)
 hist(y, breaks=100)
@@ -40,23 +40,23 @@ set.seed(0)
 x = generate.mog(n.data=1000, mu=c(0,8, 3), sigma=c(.1,.1,.2), prior=c(.6,.2,.2))
 hist(x, breaks=100)
 
-ans2 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iter=1000)
+ans2 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
 
 y = generate.mog(n.data=1000, mu=as.numeric(ans2$mu), sigma=ans2$sigma, prior=ans2$prior)
 hist(y, breaks=100)
 ```
 
-We were able to implement a function which generates multivariate MOGs. However, we did not bother to implement the multivariate EM method because we already run into issues in the univariate setting.
+We were able to implement a function which generates multivariate MOGs. We were also able to make an EM algorithm which returns a result, but not an accurate one. We think it has the same issue as in the univariate setting of finding a bad local maximum. We did not bother to debug it since this issue was already past our abilities to resolve in the univariate setting.
 
 ```{r}
 set.seed(0)
-x = generate.mog(n.data=1000, mu=matrix(c(1:6), nrow=3),
-                 sigma=replicate(3, matrix(c(2,1,1,2), nrow=2)), 
-                 prior=c(.6,.2,.2))
-hist(x, breaks=100)
+x = generate.mog(n.data=1000, mu=matrix(c(-1,0,2,-1,1,1), nrow=3),
+                 sigma=replicate(3, matrix(c(.3,.1,.1,.3), nrow=2)), 
+                 prior=c(.4,.4,.2))
+plot(x[,1], x[,2])
 
-ans2 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iter=1000)
+ans3 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
 
-y = generate.mog(n.data=1000, mu=as.numeric(ans2$mu), sigma=ans2$sigma, prior=ans2$prior)
-hist(y, breaks=100)
+y = generate.mog(n.data=1000, mu=ans3$mu, sigma=ans3$sigma, prior=ans3$prior)
+plot(y[,1], y[,2])
 ```
