@@ -93,7 +93,7 @@ plot(gmm.glucose, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="G
 ```
 
 ```{r}
-gmm.insulin <- normalmixEM(diabetes$insulin, lambda = c(1,1,1), mu = c(350,500,1000), sigma = c(60,100,300),maxit=2000,epsilon=.01)
+gmm.insulin <- normalmixEM(diabetes$insulin, lambda = c(40,40,20), mu = c(350,500,1000), sigma = c(60,100,300),maxit=2000,epsilon=.01)
 summary(gmm.insulin)
 plot(gmm.insulin, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Insulin Levels", xlab2="Insulin",breaks=25)
 ```
