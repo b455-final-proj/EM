@@ -1,6 +1,6 @@
 ---
-title: "EDA"
-author: "Ethan Violette"
+title: "Exploring EM Priors"
+author: "Damon Pham, Kushal Shah, Ethan Violette"
 date: "April 24, 2018"
 output: html_document
 ---
@@ -68,9 +68,9 @@ X.1 <- rbind(x.1, x.2)
 mu <- list(c(0))
 
 #These lines don't run?
-out.1 <- mvnormalmixEM(x, arbvar = FALSE, mu = mu,
-                       epsilon = 1e-02)
-mvnormalmixEM(x = diabetes[,-1], mu = c(5,5,5), sigma = c(5,5,5), lambda = c(.33,.33,.34))
+#out.1 <- mvnormalmixEM(x, arbvar = FALSE, mu = mu,
+#                       epsilon = 1e-02)
+#mvnormalmixEM(x = diabetes[,-1], mu = c(5,5,5), sigma = c(5,5,5), lambda = c(.33,.33,.34))
 ```
 
 # Gaussian Mixture Models
@@ -162,7 +162,6 @@ summary(gmm.entropy)
 plot(gmm.entropy, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Entropy Levels", xlab2="Entropy",breaks=25)
 ```
 
-## Diabetes/Banknote
 
 ```{r}
 gmm.glucose <- normalmixEM(diabetes$glucose, lambda = c(1,1,1), mu = evenly_spaced_quantiles(diabetes$glucose, 3), sigma = c(70,70,70)* runif(1,.9,1.1), maxit=2000, epsilon = .01)
@@ -210,4 +209,62 @@ summary(gmm.entropy)
 
 gmm.kurtosis <- normalmixEM(banknote$Kurtosis, lambda = c(1,1,1), mu = evenly_spaced_quantiles(banknote$Kurtosis, 3), sigma = c(4.3,4.3,4.3),maxit=2000, epsilon = .01)
 summary(gmm.kurtosis)
+```
+
+
+# EM Algorithm
+
+```{r setup, include=FALSE}
+list.of.packages <- c('kableExtra', 'knitr', 'ggplot2','gridExtra','reshape2','grid')
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages, require, character.only = TRUE)
+rm(list.of.packages, new.packages)
+
+opts_chunk$set(echo=FALSE, cache=TRUE, autodep=TRUE,
+               message=FALSE, warning=FALSE,
+               fig.align="center")
+
+source('scripts.R')
+```
+
+Our own implementation converges correctly when the initial prior distributions are within range of the true prior distributions. Below are plots showing the data distribution (x) and a sample from the solved MOG (y). Clearly, the distributions are near-identical.
+
+```{r}
+set.seed(0)
+x = generate.mog(n.data=1000, mu=c(0,.8, .3), sigma=c(.01,.01,.02), prior=c(.6,.2,.2))
+hist(x, breaks=100)
+
+ans1 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
+
+y = generate.mog(n.data=1000, mu=as.numeric(ans1$mu), sigma=ans1$sigma, prior=ans1$prior)
+hist(y, breaks=100)
+```
+
+However, when the true prior distributions are on a different magnitude, the algorithm fails to converge.
+
+```{r}
+set.seed(0)
+x = generate.mog(n.data=1000, mu=c(0,8, 3), sigma=c(.1,.1,.2), prior=c(.6,.2,.2))
+hist(x, breaks=100)
+
+ans2 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
+
+y = generate.mog(n.data=1000, mu=as.numeric(ans2$mu), sigma=ans2$sigma, prior=ans2$prior)
+hist(y, breaks=100)
+```
+
+We were able to implement a function which generates multivariate MOGs. We were also able to make an EM algorithm which returns a result, but not an accurate one. We think it has the same issue as in the univariate setting of finding a bad local maximum. We did not bother to debug it since this issue was already past our abilities to resolve in the univariate setting.
+
+```{r}
+set.seed(0)
+x = generate.mog(n.data=1000, mu=matrix(c(-1,0,2,-1,1,1), nrow=3),
+                 sigma=replicate(3, matrix(c(.3,.1,.1,.3), nrow=2)), 
+                 prior=c(.4,.4,.2))
+plot(x[,1], x[,2])
+
+ans3 = EM(data=x, n.classes=3, prior.choice='equal.priors.random.params', max.iters=1000)
+
+y = generate.mog(n.data=1000, mu=ans3$mu, sigma=ans3$sigma, prior=ans3$prior)
+plot(y[,1], y[,2])
 ```
