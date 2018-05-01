@@ -40,9 +40,24 @@ This is a log of the experiments we ran for this project.
 To confirm that the EM algorithm works, we ran it on a synthetic dataset for which we knew the true number of priors and their distributions.
 
 ```{r}
+set.seed(420)
 x = generate.mog(n.data = 2000, mu=c(-10,0,5), sigma=c(1, 10, 5), prior=c(.4,.4,.2))
-
-#thanks ethan
+# Eyeballing
+synth.eye <- normalmixEM(x, lambda = c(5,3,2), mu = c(-10,0,8), sigma = c(2,11,5),maxit=2000,epsilon=.01)
+summary(synth.eye)
+# 16 iterations
+# Log Likelihood: -6578
+plot(synth.eye, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Synthetic Data Levels, Inspection Method", xlab2="X",breaks=25)
+synth.quant <- normalmixEM(x, lambda = c(1,1,1), mu = evenly_spaced_quantiles(x, 3), sigma = c(9,9,9),maxit=2000,epsilon=.01)
+summary(synth.quant)
+# 25 iterations
+# Log Likelihood: -6578
+plot(synth.quant, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Synthetic Data Levels, Quantile Method", xlab2="X",breaks=25)
+synth.rand <- normalmixEM(x, lambda = c(1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1), rnorm(1,2,1)), sigma = c(9,9,9)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
+summary(synth.rand)
+# 72 iterations
+# Log Likelihood: -6578
+plot(synth.rand, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Synthetic Data Levels, Random Method", xlab2="X",breaks=25)
 ```
 
 
@@ -102,18 +117,21 @@ hist(diabetes$sspg,breaks=50)
 ```
 
 ```{r}
+# Eyeballing
 gmm.glucose <- normalmixEM(diabetes$glucose, lambda = c(.125,.8,.075), mu = c(50,100,150), sigma = c(20,10,50),maxit=2000,epsilon=.01)
 summary(gmm.glucose)
 plot(gmm.glucose, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Glucose Levels", xlab2="Glucose",breaks=25)
 ```
 
 ```{r}
+# Eyeballing
 gmm.insulin <- normalmixEM(diabetes$insulin, lambda = c(40,40,20), mu = c(350,500,1000), sigma = c(60,100,300),maxit=2000,epsilon=.01)
 summary(gmm.insulin)
 plot(gmm.insulin, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Insulin Levels", xlab2="Insulin",breaks=25)
 ```
 
 ```{r}
+# Eyeballing
 gmm.sspg <- normalmixEM(diabetes$sspg, lambda = c(.8,.15,.05), mu = c(130,270,500), sigma = c(70,20,200),maxit=2000,epsilon=.01)
 summary(gmm.sspg)
 plot(gmm.sspg, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="SSPG Levels", xlab2="SSPG",breaks=27)
@@ -121,6 +139,7 @@ plot(gmm.sspg, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="SSPG
 
 
 ```{r}
+# Eyeballing
 gmm.sspg <- normalmixEM(diabetes$sspg, lambda = c(1,1,1), mu = c(350,800,1200), sigma = c(60,200,300),maxit=2000)
 summary(gmm.sspg)
 ```
@@ -154,24 +173,28 @@ hist(banknote$entropy,breaks=50) # 2 classes
 
 
 ```{r}
+# Eyeballing
 gmm.variance <- normalmixEM(banknote$variance, lambda = c(1,1,1,1), mu = c(-4,-2,0,4), sigma = c(1.5,1,1,0.5),maxit=2000,epsilon=.01)
 summary(gmm.variance)
 plot(gmm.variance, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Variance Levels", xlab2="Variance",breaks=25)
 ```
 
 ```{r}
+# Eyeballing
 gmm.skewness <- normalmixEM(banknote$skewness, lambda = c(.05,.2,.25,.2,.3), mu = c(-13,-7,0,3,8), sigma = c(1,2,1.5,1.5,3),maxit=2000,epsilon=.01)
 summary(gmm.skewness)
 plot(gmm.skewness, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Skewness Levels", xlab2="Skewness",breaks=25)
 ```
 
 ```{r}
+# Eyeballing
 gmm.kurtosis <- normalmixEM(banknote$kurtosis, lambda = c(.2,.6,.2), mu = c(-4,0,6), sigma = c(2,2,3),maxit=2000,epsilon=.01)
 summary(gmm.kurtosis)
 plot(gmm.kurtosis, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Kurtosis Levels", xlab2="Kurtosis",breaks=25)
 ```
 
 ```{r}
+# Eyeballing
 gmm.entropy <- normalmixEM(banknote$entropy, lambda = c(.3,.7), mu = c(-4,0), sigma = c(2,1),maxit=2000,epsilon=.01)
 summary(gmm.entropy)
 plot(gmm.entropy, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="Entropy Levels", xlab2="Entropy",breaks=25)
@@ -179,11 +202,12 @@ plot(gmm.entropy, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="E
 
 
 ```{r}
+# Quantiles
 gmm.glucose <- normalmixEM(diabetes$glucose, lambda = c(1,1,1), mu = evenly_spaced_quantiles(diabetes$glucose, 3), sigma = c(70,70,70)* runif(1,.9,1.1), maxit=2000, epsilon = .01)
-
+# Quantiles
 gmm.insulin <- normalmixEM(diabetes$insulin, lambda = c(1,1,1), mu = evenly_spaced_quantiles(diabetes$glucose, 3), sigma = c(319,319,319)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.insulin)
-
+# Quantiles
 gmm.sspg <- normalmixEM(diabetes$sspg, lambda = c(1,1,1), mu = evenly_spaced_quantiles(diabetes$glucose, 3), sigma = c(121,121,121)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.sspg)
 
@@ -191,37 +215,40 @@ plot(gmm.glucose, density=TRUE, cex.axis=1.4, cex.lab=1.4, cex.main=1.8,main2="G
 ```
 
 ```{r}
+# Random
 gmm.glucose <- normalmixEM(diabetes$glucose, lambda = c(1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,1,1)), sigma = c(70,70,70)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
-
+# Random
 gmm.insulin <- normalmixEM(diabetes$insulin, lambda = c(1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,1,1)), sigma = c(319,319,319)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.insulin)
-
+# Random
 gmm.sspg <- normalmixEM(diabetes$sspg, lambda = c(1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,1,1)), sigma = c(121,121,121)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.sspg)
 ```
 
 ```{r}
+# Random
 gmm.variance <- normalmixEM(banknote$Variance, lambda = c(1,1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,2,1),rnorm(1,3,1)), sigma = c(3,3,3,3)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
-
+# Random
 gmm.skewness <- normalmixEM(banknote$Skewness, lambda = c(1,1,1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,2,1),rnorm(1,3,1),rnorm(1,4,1)), sigma = c(6,6,6,6,6)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
-
+# Random
 gmm.entropy <- normalmixEM(banknote$Entropy, lambda = c(1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1)), sigma = c(2.1,2.1)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.entropy)
-
+# Random
 gmm.kurtosis <- normalmixEM(banknote$Kurtosis, lambda = c(1,1,1), mu = c(rnorm(1,0,1),rnorm(1,1,1),rnorm(1,2,1)), sigma = c(4.3,4.3,4.3)* runif(1,.9,1.1),maxit=2000, epsilon = .01)
 summary(gmm.kurtosis)
 ```
 
 ```{r}
+# Quantiles
 gmm.variance <- normalmixEM(banknote$Variance, lambda = c(1,1,1,1), mu = evenly_spaced_quantiles(banknote$Variance, 4), sigma = c(3,3,3,3),maxit=2000, epsilon = .01)
 summary(gmm.variance)
 qskew <- quantile(banknote$Skewness)
-
+# Quantiles
 gmm.skewness <- normalmixEM(banknote$Skewness, lambda = c(1,1,1,1,1), mu = evenly_spaced_quantiles(banknote$Skewness, 5), sigma = c(6,6,6,6,6),maxit=2000, epsilon = .01)
-
+# Quantiles
 gmm.entropy <- normalmixEM(banknote$Entropy, lambda = c(1,1), mu = evenly_spaced_quantiles(banknote$Entropy, 2), sigma = c(2.1,2.1),maxit=2000, epsilon = .01)
 summary(gmm.entropy)
-
+# Quantiles
 gmm.kurtosis <- normalmixEM(banknote$Kurtosis, lambda = c(1,1,1), mu = evenly_spaced_quantiles(banknote$Kurtosis, 3), sigma = c(4.3,4.3,4.3),maxit=2000, epsilon = .01)
 summary(gmm.kurtosis)
 ```
